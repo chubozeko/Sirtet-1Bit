@@ -11,10 +11,7 @@ public class Piece : MonoBehaviour
     public Transform rotationPoint;
 
     private Grid grid;
-    // Grid Dimensions
-    // public static int gridWidth = 12;
-    // public static int gridHeight = 20;
-    // private static Transform[,] grid = new Transform[gridWidth, gridHeight];
+    
     void Start()
     {
         grid = FindObjectOfType<Grid>();
@@ -29,6 +26,7 @@ public class Piece : MonoBehaviour
             {
                 transform.position -= new Vector3(-1, 0, 0);
             }
+            grid.UpdateShadowPiece(transform);
         }
         else if (Input.GetKeyDown(KeyCode.D)) 
         {
@@ -37,6 +35,7 @@ public class Piece : MonoBehaviour
             {
                 transform.position -= new Vector3(1, 0, 0);
             }
+            grid.UpdateShadowPiece(transform);
         }
         else if (Input.GetKeyDown(KeyCode.W)) 
         {
@@ -45,30 +44,32 @@ public class Piece : MonoBehaviour
             {
                 transform.RotateAround(rotationPoint.position, new Vector3(0, 0, 1), -90f);
             }
+            grid.UpdateShadowPiece(transform);
         }
 
 
         if (Time.time - prevTime > (Input.GetKey(KeyCode.S) ? dropTime / dropMultiplier : dropTime))
         {
             transform.position += new Vector3(0, -1, 0);
+            grid.UpdateShadowPiece(transform);
             if (!grid.ValidMove(transform)) 
             {
                 transform.position -= new Vector3(0, -1, 0);
+                grid.UpdateShadowPiece(transform);
                 grid.AddPieceToGrid(transform);
                 // CheckForLines();
 
                 this.enabled = false;
                 // Only spawn a new piece if there is no other piece in the Spawner's position
-                if (transform.position != FindObjectOfType<PieceSpawner>().transform.position) 
+                if (transform.position != grid.GetSpawnPosition()) 
                 {
-                    FindObjectOfType<PieceSpawner>().SpawnPiece();
+                    grid.SpawnNewPiece();
                 }
                 else
                 {
                     // TODO: show GAME OVER panel
                     Debug.Log("GAME OVER!");
                 }
-                
             }
             prevTime = Time.time;
         }
