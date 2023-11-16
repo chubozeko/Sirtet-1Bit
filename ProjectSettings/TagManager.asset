@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - PieceBlock
+  - ShadowBlock
+  - ClearingBlock
   layers:
   - Default
   - TransparentFX

@@ -6,6 +6,7 @@ public class PieceSpawner : MonoBehaviour
 {
     public GameObject[] pieces;
     private GameObject nextPiece;
+    private GameObject activePiece;
     public Vector3 nextPieceLoadPosition;
     void Start()
     {
@@ -27,9 +28,11 @@ public class PieceSpawner : MonoBehaviour
     public void SpawnPiece()
     {
         // Spawn a new piece based on the 'nextPiece'
-        GameObject newPiece = Instantiate(nextPiece, transform.position, Quaternion.identity);
-        newPiece.GetComponent<Piece>().enabled = true;
+        activePiece = Instantiate(nextPiece, transform.position, Quaternion.identity);
+        activePiece.GetComponent<Piece>().enabled = true;
         // Load the next piece
         LoadNextPiece();
     }
+
+    public GameObject GetActivePiece() { return activePiece; }
 }

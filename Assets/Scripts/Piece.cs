@@ -9,14 +9,12 @@ public class Piece : MonoBehaviour
     public float dropTime = 0.8f;
     public float dropMultiplier = 10f;
     public Transform rotationPoint;
-    // Grid Dimensions
-    public static int gridWidth = 12;
-    public static int gridHeight = 20;
 
-    private static Transform[,] grid = new Transform[gridWidth, gridHeight];
+    private Grid grid;
+    
     void Start()
     {
-        
+        grid = FindObjectOfType<Grid>();
     }
 
     void Update()
@@ -24,139 +22,59 @@ public class Piece : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.A)) 
         {
             transform.position += new Vector3(-1, 0, 0);
-            if (!ValidMove()) 
+            if (!grid.ValidMove(transform)) 
             {
                 transform.position -= new Vector3(-1, 0, 0);
             }
+            grid.UpdateShadowPiece(transform);
         }
         else if (Input.GetKeyDown(KeyCode.D)) 
         {
             transform.position += new Vector3(1, 0, 0);
-            if (!ValidMove()) 
+            if (!grid.ValidMove(transform)) 
             {
                 transform.position -= new Vector3(1, 0, 0);
             }
+            grid.UpdateShadowPiece(transform);
         }
         else if (Input.GetKeyDown(KeyCode.W)) 
         {
             transform.RotateAround(rotationPoint.position, new Vector3(0, 0, 1), 90f);
-            if (!ValidMove()) 
+            if (!grid.ValidMove(transform)) 
             {
                 transform.RotateAround(rotationPoint.position, new Vector3(0, 0, 1), -90f);
             }
+            grid.UpdateShadowPiece(transform);
         }
 
 
         if (Time.time - prevTime > (Input.GetKey(KeyCode.S) ? dropTime / dropMultiplier : dropTime))
         {
             transform.position += new Vector3(0, -1, 0);
-            if (!ValidMove()) 
+            grid.UpdateShadowPiece(transform);
+            if (!grid.ValidMove(transform)) 
             {
                 transform.position -= new Vector3(0, -1, 0);
-                AddToGrid();
-                CheckForLines();
+                grid.UpdateShadowPiece(transform);
+                grid.AddPieceToGrid(transform);
+                // CheckForLines();
 
                 this.enabled = false;
                 // Only spawn a new piece if there is no other piece in the Spawner's position
-                if (transform.position != FindObjectOfType<PieceSpawner>().transform.position) 
+                if (transform.position != grid.GetSpawnPosition()) 
                 {
-                    FindObjectOfType<PieceSpawner>().SpawnPiece();
+                    grid.SpawnNewPiece();
                 }
                 else
                 {
                     // TODO: show GAME OVER panel
                     Debug.Log("GAME OVER!");
                 }
-                
             }
             prevTime = Time.time;
         }
     }
 
-    bool ValidMove()
-    {
-        foreach (Transform childBlock in transform)
-        {
-            if (childBlock.CompareTag("PieceBlock")) 
-            {
-                int roundedX = Mathf.RoundToInt(childBlock.transform.position.x);
-                int roundedY = Mathf.RoundToInt(childBlock.transform.position.y);
-
-                if (roundedX < 0 || roundedX >= gridWidth || roundedY < 0 || roundedY >= gridHeight)
-                {
-                    return false;
-                }
-
-                if (grid[roundedX, roundedY] != null)
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    void AddToGrid()
-    {
-        foreach (Transform childBlock in transform)
-        {
-            if (childBlock.CompareTag("PieceBlock")) 
-            {
-                int roundedX = Mathf.RoundToInt(childBlock.transform.position.x);
-                int roundedY = Mathf.RoundToInt(childBlock.transform.position.y);
-
-                grid[roundedX, roundedY] = childBlock;
-            }
-        }
-    }
-
-    void CheckForLines()
-    {
-        for (int i = gridHeight-1; i >= 0; i--)
-        {
-            if (HasLine(i))
-            {
-                DeleteLine(i);
-                RowDown(i);
-            }
-        }
-    }
-
-    bool HasLine(int i)
-    {
-        for (int j = 0; j < gridWidth; j++)
-        {
-            if (grid[j,i] == null)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    void DeleteLine(int i)
-    {
-        for (int j = 0; j < gridWidth; j++)
-        {
-            Destroy(grid[j,i].gameObject);
-            grid[j,i] = null;
-        }
-    }
-
-    void RowDown(int i)
-    {
-        for (int y = i; y < gridHeight; y++)
-        {
-            for (int j = 0; j < gridWidth; j++)
-            {
-                if (grid[j,y] != null)
-                {
-                    grid[j, y-1] = grid[j, y];
-                    grid[j, y] = null;
-                    grid[j, y-1].transform.position -= new Vector3(0, 1, 0);
-                }
-            }
-        }
-    }
+    
 
 }
