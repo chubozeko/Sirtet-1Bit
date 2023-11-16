@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 6479764904032887790}
   - component: {fileID: 601261052700020952}
   m_Layer: 0
-  m_Name: Square (2)
-  m_TagString: Untagged
+  m_Name: Block_1
+  m_TagString: PieceBlock
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 3008047023960798069}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: 2, z: 0}
+  m_LocalPosition: {x: -1, y: -1, z: 0}
   m_LocalScale: {x: 0.9, y: 0.9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -95,8 +95,8 @@ GameObject:
   - component: {fileID: 4762435242909537133}
   - component: {fileID: 4892041940735580880}
   m_Layer: 0
-  m_Name: Square (1)
-  m_TagString: Untagged
+  m_Name: Block_3
+  m_TagString: PieceBlock
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -110,7 +110,7 @@ Transform:
   m_GameObject: {fileID: 3927217553261510650}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 0}
+  m_LocalPosition: {x: 1, y: 1, z: 0}
   m_LocalScale: {x: 0.9, y: 0.9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -198,10 +198,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3579004749594191241}
-  - {fileID: 4762435242909537133}
   - {fileID: 6479764904032887790}
   - {fileID: 2617077178427559185}
+  - {fileID: 4762435242909537133}
+  - {fileID: 3579004749594191241}
   - {fileID: 3191184624980727075}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -231,8 +231,8 @@ GameObject:
   - component: {fileID: 3579004749594191241}
   - component: {fileID: 7418194219475233909}
   m_Layer: 0
-  m_Name: Square
-  m_TagString: Untagged
+  m_Name: Block_4
+  m_TagString: PieceBlock
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -246,7 +246,7 @@ Transform:
   m_GameObject: {fileID: 5006856568144736194}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2, y: -1, z: 0}
+  m_LocalPosition: {x: 2, y: 2, z: 0}
   m_LocalScale: {x: 0.9, y: 0.9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -346,8 +346,8 @@ GameObject:
   - component: {fileID: 2617077178427559185}
   - component: {fileID: 7780582291289185677}
   m_Layer: 0
-  m_Name: Square (3)
-  m_TagString: Untagged
+  m_Name: Block_2
+  m_TagString: PieceBlock
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -361,7 +361,7 @@ Transform:
   m_GameObject: {fileID: 6582056592183448078}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.9, y: 0.9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

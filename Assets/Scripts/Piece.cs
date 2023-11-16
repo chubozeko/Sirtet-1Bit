@@ -54,7 +54,17 @@ public class Piece : MonoBehaviour
                 transform.position -= new Vector3(0, -1, 0);
                 AddToGrid();
                 this.enabled = false;
-                FindObjectOfType<PieceSpawner>().SpawnPiece();
+                // Only spawn a new piece if there is no other piece in the Spawner's position
+                if (transform.position != FindObjectOfType<PieceSpawner>().transform.position) 
+                {
+                    FindObjectOfType<PieceSpawner>().SpawnPiece();
+                }
+                else
+                {
+                    // TODO: show GAME OVER panel
+                    Debug.Log("GAME OVER!");
+                }
+                
             }
             prevTime = Time.time;
         }
@@ -64,17 +74,20 @@ public class Piece : MonoBehaviour
     {
         foreach (Transform children in transform)
         {
-            int roundedX = Mathf.RoundToInt(children.transform.position.x);
-            int roundedY = Mathf.RoundToInt(children.transform.position.y);
-
-            if (roundedX < 0 || roundedX >= gridWidth || roundedY < 0 || roundedY >= gridHeight)
+            if (children.CompareTag("PieceBlock")) 
             {
-                return false;
-            }
+                int roundedX = Mathf.RoundToInt(children.transform.position.x);
+                int roundedY = Mathf.RoundToInt(children.transform.position.y);
 
-            if (grid[roundedX, roundedY] != null)
-            {
-                return false;
+                if (roundedX < 0 || roundedX >= gridWidth || roundedY < 0 || roundedY >= gridHeight)
+                {
+                    return false;
+                }
+
+                if (grid[roundedX, roundedY] != null)
+                {
+                    return false;
+                }
             }
         }
         return true;
@@ -84,10 +97,13 @@ public class Piece : MonoBehaviour
     {
         foreach (Transform children in transform)
         {
-            int roundedX = Mathf.RoundToInt(children.transform.position.x);
-            int roundedY = Mathf.RoundToInt(children.transform.position.y);
+            if (children.CompareTag("PieceBlock")) 
+            {
+                int roundedX = Mathf.RoundToInt(children.transform.position.x);
+                int roundedY = Mathf.RoundToInt(children.transform.position.y);
 
-            grid[roundedX, roundedY] = children;
+                grid[roundedX, roundedY] = children;
+            }
         }
     }
 }
