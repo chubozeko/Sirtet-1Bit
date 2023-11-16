@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PieceBlock
   - ShadowBlock
+  - ClearingBlock
   layers:
   - Default
   - TransparentFX

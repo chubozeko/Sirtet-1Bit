@@ -33,6 +33,7 @@ public class Grid : MonoBehaviour
     {
         if (!shadowPiece.gameObject.activeSelf)
             shadowPiece.gameObject.SetActive(true);
+        shadowPiece.position = Vector3.zero;
         // Copy the activePiece's blocks
         List<Vector3> blockPositions = new List<Vector3>();
         foreach (Transform childBlock in activePiece)
@@ -43,9 +44,12 @@ public class Grid : MonoBehaviour
         {
             shadowPiece.GetChild(i).transform.position = blockPositions[i];
         }
-        // Drop shadowBlock to the minimum drop distance
+        // Drop shadowPiece to the minimum drop distance
         int dropDistance = FindDropDistance(activePiece);
         shadowPiece.position -= new Vector3(0, dropDistance, 0);
+        
+        // TODO: Update clearingPiece based on shadowPiece
+ 
     }
 
     private int FindDropDistance(Transform piece)
