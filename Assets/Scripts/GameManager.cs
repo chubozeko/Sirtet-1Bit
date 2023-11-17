@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public GameObject pausePanel;
     public Piece pieceScript;
     public PieceSpawner spawnSpawner;
+    public AudioSource gameOverSound;
     private void Start()
     {
         gameOverPanel.SetActive(false);
@@ -42,6 +43,7 @@ public class GameManager : MonoBehaviour
     {
         gameOverPanel.SetActive(true);
         Time.timeScale = 0f;
+        gameOverSound.PlayOneShot(gameOverSound.clip);
     }
 
     public void PauseGame()
