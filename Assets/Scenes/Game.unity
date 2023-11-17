@@ -264,7 +264,7 @@ GameObject:
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -1365,7 +1365,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.37500003}
   m_AnchorMax: {x: 0.5, y: 0.37500003}
-  m_AnchoredPosition: {x: -7, y: 6.7568054}
+  m_AnchoredPosition: {x: -1.311202, y: 6.7568054}
   m_SizeDelta: {x: 493.7618, y: 320.7962}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &483679145
@@ -1953,7 +1953,7 @@ MonoBehaviour:
   - {fileID: 2303338965711930557, guid: 99047be62eaca61409efa94557caa4b0, type: 3}
   - {fileID: 4439908871388457085, guid: d79fab13fa3ae71408c0c76f545c394e, type: 3}
   - {fileID: 5408554818963709913, guid: 41bef707d6cefab4487f0b143a13ce40, type: 3}
-  nextPieceLoadPosition: {x: 18, y: 8, z: 0}
+  nextPieceLoadPosition: {x: 18.5, y: 8, z: 0}
 --- !u!4 &1076634557
 Transform:
   m_ObjectHideFlags: 0
