@@ -9,6 +9,10 @@ public class Piece : MonoBehaviour
     public float dropTime = 0.8f;
     public float dropMultiplier = 10f;
     public Transform rotationPoint;
+    public GameObject gameOverPanel;
+    // Grid Dimensions
+    public static int gridWidth = 12;
+    public static int gridHeight = 20;
 
     private Grid grid;
     
@@ -67,7 +71,7 @@ public class Piece : MonoBehaviour
                 }
                 else
                 {
-                    // TODO: show GAME OVER panel
+                    gameOverPanel.SetActive(true);
                     Debug.Log("GAME OVER!");
                 }
             }
