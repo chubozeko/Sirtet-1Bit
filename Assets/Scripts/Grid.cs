@@ -10,11 +10,13 @@ public class Grid : MonoBehaviour
 
     public GameObject activePiece;
     public Transform shadowPiece;
+    public Transform clearingPiece;
     public PieceSpawner pieceSpawner;
 
     void Start()
     {
         shadowPiece.gameObject.SetActive(false);
+        clearingPiece.gameObject.SetActive(false);
     }
 
     public void SpawnNewPiece()
@@ -47,9 +49,30 @@ public class Grid : MonoBehaviour
         // Drop shadowPiece to the minimum drop distance
         int dropDistance = FindDropDistance(activePiece);
         shadowPiece.position -= new Vector3(0, dropDistance, 0);
-        
-        // TODO: Update clearingPiece based on shadowPiece
- 
+        // Update clearingPiece based on shadowPiece
+        UpdateClearingPiece(shadowPiece);
+    }
+
+    public void UpdateClearingPiece(Transform shadowPiece)
+    {
+        if (!clearingPiece.gameObject.activeSelf)
+            clearingPiece.gameObject.SetActive(true);
+        // Reset transform of clearingPiece
+        clearingPiece.position = Vector3.zero;
+        clearingPiece.rotation = new Quaternion(0, 0, 0, 0);
+        // Copy the shadowPiece's blocks
+        List<Vector3> blockPositions = new List<Vector3>();
+        foreach (Transform childBlock in shadowPiece)
+        {
+            blockPositions.Add(childBlock.position);
+        }
+        for(int i=0; i<clearingPiece.childCount; i++)
+        {
+            clearingPiece.GetChild(i).transform.position = blockPositions[i];
+        }
+        // Mirror clearingPiece based on the bottom of the shadowPiece (rotate, then translate)
+        clearingPiece.RotateAround(GetBottomPositionOfPiece(shadowPiece), new Vector3(1, 0, 0), 180f);
+        clearingPiece.position -= new Vector3(0, 1, 0);
     }
 
     private int FindDropDistance(Transform piece)
@@ -171,4 +194,28 @@ public class Grid : MonoBehaviour
             }
         }
     }
+
+    private Vector3 GetBottomPositionOfPiece(Transform piece)
+    {
+        Transform bottommost = piece.GetChild(0);
+        float minDist = 30;
+        Vector3 bottommostPosition = Vector3.zero;
+        foreach (Transform childBlock in piece)
+        {
+            // childBlock.GetComponent<SpriteRenderer>().color = defaultPieceColor;
+            int roundedX = Mathf.RoundToInt(childBlock.transform.position.x);
+            int roundedY = Mathf.RoundToInt(childBlock.transform.position.y);
+            Vector3 coords = new Vector3(roundedX, roundedY, 0f);
+            if (roundedY < minDist)
+            {
+                minDist = roundedY;
+                bottommost = childBlock;
+                bottommostPosition = coords;
+            }
+        }
+        // Debug.Log("Bottommost pieceBlock: " + bottommost.name + "; coords: " + bmCoords + "; dist = " + minDist);
+        return bottommostPosition;
+    }
+
+    
 }
