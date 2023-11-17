@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Grid : MonoBehaviour
 {
+    public Transform defaultBlock;
+    public Sprite[] blockSprites;
+    public float gridBlockPreloadPercentage = 66.6f;
     public static int gridWidth = 12;
     public static int gridHeight = 20;
     private static Transform[,] grid = new Transform[gridWidth, gridHeight];
@@ -15,8 +18,23 @@ public class Grid : MonoBehaviour
 
     void Start()
     {
+        PreloadGridBlocks();
         shadowPiece.gameObject.SetActive(false);
         clearingPiece.gameObject.SetActive(false);
+    }
+
+    void PreloadGridBlocks()
+    {
+        int preloadHeight = (int)(gridHeight * (gridBlockPreloadPercentage/100));
+        for (int i=0; i<gridWidth; i++)
+        {
+            for (int j=0; j<preloadHeight; j++)
+            {
+                // defaultBlock.GetComponent<SpriteRenderer>().sprite = blockSprites[Random.Range(0, blockSprites.Length)];
+                GameObject newBlock = Instantiate(defaultBlock.gameObject, new Vector3(i, j, 0), Quaternion.identity);
+                grid[i, j] = newBlock.transform;
+            }    
+        }
     }
 
     public void SpawnNewPiece()
@@ -132,21 +150,38 @@ public class Grid : MonoBehaviour
 
     public void AddPieceToGrid(Transform piece)
     {
-        foreach (Transform childBlock in piece)
-        {
-            if (childBlock.CompareTag("PieceBlock")) 
-            {
-                int roundedX = Mathf.RoundToInt(childBlock.transform.position.x);
-                int roundedY = Mathf.RoundToInt(childBlock.transform.position.y);
+        // foreach (Transform childBlock in piece)
+        // {
+        //     if (childBlock.CompareTag("PieceBlock")) 
+        //     {
+        //         int roundedX = Mathf.RoundToInt(childBlock.transform.position.x);
+        //         int roundedY = Mathf.RoundToInt(childBlock.transform.position.y);
 
-                grid[roundedX, roundedY] = childBlock;
-            }
-        }
+        //         grid[roundedX, roundedY] = childBlock;
+        //     }
+        // }
+        Destroy(piece.gameObject);
+        ClearBlocksUnderneath();
 
-        CheckForLines();
     }
 
-    void CheckForLines()
+    void ClearBlocksUnderneath()
+    {
+        foreach (Transform childBlock in clearingPiece)
+        {
+            Vector2 coords = GetGridPosition(childBlock);
+            if (coords.x >= 0 && coords.y >= 0)
+            {
+                if (grid[(int)coords.x, (int)coords.y] != null)
+                {
+                    Destroy(grid[(int)coords.x, (int)coords.y].gameObject);
+                    grid[(int)coords.x, (int)coords.y] = null;
+                }
+            }
+        }
+    }
+
+    void CheckForClearance()
     {
         for (int i = gridHeight-1; i >= 0; i--)
         {
@@ -217,5 +252,10 @@ public class Grid : MonoBehaviour
         return bottommostPosition;
     }
 
-    
+    private Vector2 GetGridPosition(Transform blockPiece)
+    {
+        int roundedX = Mathf.RoundToInt(blockPiece.transform.position.x);
+        int roundedY = Mathf.RoundToInt(blockPiece.transform.position.y);
+        return new Vector2(roundedX, roundedY);
+    }
 }
