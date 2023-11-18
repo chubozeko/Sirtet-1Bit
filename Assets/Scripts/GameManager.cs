@@ -17,8 +17,12 @@ public class GameManager : MonoBehaviour
     public AudioSource gameOverSound;
     public AudioSource winSound;
     public Text winConditionText;
+    public Text t_GO_Points;
+    public Text t_LC_Points;
     private int winCondition = 10;
     public UnityEvent OnGameOver = new UnityEvent();
+
+    public Grid grid;
 
     private void Start()
     {
@@ -73,8 +77,22 @@ public class GameManager : MonoBehaviour
     {
         isGameActive = false;
         isPaused = false;
+        t_GO_Points.text = "Total Points: " + grid.GetTotalPoints().ToString();
         gameOverPanel.SetActive(true);
         gameOverSound.PlayOneShot(gameOverSound.clip);
+        // Deactivate running components
+        spawnSpawner.enabled = false;
+        grid.activePiece.SetActive(false);
+    }
+
+    public void LevelComplete()
+    {
+        isGameActive = false;
+        isPaused = false;
+        t_LC_Points.text = "Total Points: " + grid.GetTotalPoints().ToString();
+        winPanel.SetActive(true);
+        winSound.PlayOneShot(winSound.clip);
+        grid.activePiece.SetActive(false);
     }
 
     private void TogglePause()
@@ -99,6 +117,7 @@ public class GameManager : MonoBehaviour
             pausePanel.SetActive(true);
             // Stop or pause various game components
             spawnSpawner.enabled = false;
+            grid.activePiece.SetActive(false);
         }
     }
 
@@ -110,6 +129,7 @@ public class GameManager : MonoBehaviour
             pausePanel.SetActive(false);
             // Resume or start various game components
             spawnSpawner.enabled = true;
+            grid.activePiece.SetActive(true);
         }
     }
 
@@ -131,10 +151,10 @@ public class GameManager : MonoBehaviour
 
     public void ExitGame()
     {
-#if UNITY_EDITOR
-        print("Exit");
-#endif
-        Application.Quit();
+        #if UNITY_EDITOR
+            print("Exit");
+        #endif
+            Application.Quit();
     }
 
 

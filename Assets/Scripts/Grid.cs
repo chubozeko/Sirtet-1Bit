@@ -18,28 +18,44 @@ public class Grid : MonoBehaviour
     public Transform clearingPiece;
     public PieceSpawner pieceSpawner;
 
-    public Text t_blocksLeft;
+    public Text t_BlocksLeft;
+    public Text t_ClearPoints;
+    public Text t_CorrectShape;
+    public int blockClearancePoint = 2;
 
     private float timer = 0f;
+    private int clearingPoints = 0;
+    private int correctShapeCount = 0;
 
-    void Start()
+    void Awake()
     {
         PreloadGridBlocks();
         shadowPiece.gameObject.SetActive(false);
         clearingPiece.gameObject.SetActive(false);
-        timer = gridWidth + 1;
+        timer = 0;
         StartCoroutine(LoadNewGridLine());
     }
 
     void Update()
     {
-        timer -= Time.deltaTime;
-        if (timer < 0f)
+        timer += Time.deltaTime;
+        if (timer >= newLineGrid.Length)
         {
             StartCoroutine(LoadNewGridLine());
-            timer = gridWidth + 1;
+            timer = 0;
         }
-        t_blocksLeft.text = GetTotalGridBlocks().ToString();
+        t_BlocksLeft.text = GetTotalGridBlocks().ToString();
+        t_ClearPoints.text = clearingPoints.ToString();
+        t_CorrectShape.text = correctShapeCount.ToString();
+
+        if (GetTotalGridBlocks() <= 0)
+        {
+            FindObjectOfType<GameManager>().LevelComplete();
+        }
+        else if (IsGridMaxHeight())
+        {
+            FindObjectOfType<GameManager>().GameOver();
+        }
     }
 
     void PreloadGridBlocks()
@@ -76,12 +92,15 @@ public class Grid : MonoBehaviour
         defaultBlock.GetComponent<SpriteRenderer>().sprite = blockSprites[Random.Range(0, blockSprites.Length)];
         for (int k=0; k<newLineGrid.Length; k++)
         {
-            GameObject newBlock = Instantiate(defaultBlock.gameObject, new Vector3(k, -1, 0), Quaternion.identity);
-            Color c = newBlock.gameObject.GetComponent<SpriteRenderer>().color; 
-            c.a = 0.5f;
-            newBlock.gameObject.GetComponent<SpriteRenderer>().color = c;
-            newLineGrid[k] = newBlock.transform;
-            yield return new WaitForSeconds(1f);
+            if (newLineGrid[k] == null)
+            {
+                GameObject newBlock = Instantiate(defaultBlock.gameObject, new Vector3(k, -1, 0), Quaternion.identity);
+                Color c = newBlock.gameObject.GetComponent<SpriteRenderer>().color; 
+                c.a = 0.5f;
+                newBlock.gameObject.GetComponent<SpriteRenderer>().color = c;
+                newLineGrid[k] = newBlock.transform;
+                yield return new WaitForSeconds(1f);
+            }
         }
         MoveRowsUp();
         AddNewLine();
@@ -90,6 +109,18 @@ public class Grid : MonoBehaviour
             Destroy(newLineGrid[j].gameObject);
             newLineGrid[j] = null;
         }
+    }
+
+    private bool IsGridMaxHeight()
+    {
+        for (int j = 0; j < gridWidth; j++)
+        {
+            if (grid[j, gridHeight-2] != null)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void SpawnNewPiece()
@@ -106,8 +137,6 @@ public class Grid : MonoBehaviour
 
     public void UpdateShadowPiece(Transform activePiece)
     {
-        
-
         if (!shadowPiece.gameObject.activeSelf)
             shadowPiece.gameObject.SetActive(true);
         shadowPiece.position = Vector3.zero;
@@ -121,7 +150,7 @@ public class Grid : MonoBehaviour
         {
             shadowPiece.GetChild(i).transform.position = blockPositions[i];
             Color c = shadowPiece.GetChild(i).transform.gameObject.GetComponent<SpriteRenderer>().color; 
-            c.a = 0.25f;
+            c.a = 0.10f;
             shadowPiece.GetChild(i).transform.gameObject.GetComponent<SpriteRenderer>().color = c;
         }
         // Drop shadowPiece to the minimum drop distance
@@ -216,6 +245,7 @@ public class Grid : MonoBehaviour
 
     void ClearBlocksUnderneath()
     {
+        int blocksCleared = 0;
         foreach (Transform childBlock in clearingPiece)
         {
             Vector2 coords = GetGridPosition(childBlock);
@@ -225,9 +255,13 @@ public class Grid : MonoBehaviour
                 {
                     Destroy(grid[(int)coords.x, (int)coords.y].gameObject);
                     grid[(int)coords.x, (int)coords.y] = null;
+                    clearingPoints += blockClearancePoint;
+                    blocksCleared++;
                 }
             }
         }
+        if (blocksCleared == clearingPiece.childCount)
+            correctShapeCount += 1;
     }
 
     void AddNewLine()
@@ -282,5 +316,10 @@ public class Grid : MonoBehaviour
         int roundedX = Mathf.RoundToInt(blockPiece.transform.position.x);
         int roundedY = Mathf.RoundToInt(blockPiece.transform.position.y);
         return new Vector2(roundedX, roundedY);
+    }
+
+    public int GetTotalPoints()
+    {
+        return clearingPoints + (correctShapeCount * blockClearancePoint);
     }
 }
