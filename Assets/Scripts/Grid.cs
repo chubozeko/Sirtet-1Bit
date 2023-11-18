@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Grid : MonoBehaviour
 {
@@ -10,17 +11,35 @@ public class Grid : MonoBehaviour
     public static int gridWidth = 12;
     public static int gridHeight = 20;
     private static Transform[,] grid = new Transform[gridWidth, gridHeight];
+    private static Transform[] newLineGrid = new Transform[gridWidth];
 
     public GameObject activePiece;
     public Transform shadowPiece;
     public Transform clearingPiece;
     public PieceSpawner pieceSpawner;
 
+    public Text t_blocksLeft;
+
+    private float timer = 0f;
+
     void Start()
     {
         PreloadGridBlocks();
         shadowPiece.gameObject.SetActive(false);
         clearingPiece.gameObject.SetActive(false);
+        timer = gridWidth + 1;
+        StartCoroutine(LoadNewGridLine());
+    }
+
+    void Update()
+    {
+        timer -= Time.deltaTime;
+        if (timer < 0f)
+        {
+            StartCoroutine(LoadNewGridLine());
+            timer = gridWidth + 1;
+        }
+        t_blocksLeft.text = GetTotalGridBlocks().ToString();
     }
 
     void PreloadGridBlocks()
@@ -30,10 +49,46 @@ public class Grid : MonoBehaviour
         {
             for (int j=0; j<preloadHeight; j++)
             {
-                // defaultBlock.GetComponent<SpriteRenderer>().sprite = blockSprites[Random.Range(0, blockSprites.Length)];
+                defaultBlock.GetComponent<SpriteRenderer>().sprite = blockSprites[Random.Range(0, blockSprites.Length)];
                 GameObject newBlock = Instantiate(defaultBlock.gameObject, new Vector3(i, j, 0), Quaternion.identity);
                 grid[i, j] = newBlock.transform;
             }    
+        }
+    }
+
+    int GetTotalGridBlocks()
+    {
+        int total = 0;
+        for (int y = 0; y < gridHeight; y++)
+        {
+            for (int x = 0; x < gridWidth; x++)
+            {
+                if (grid[x,y] != null)
+                    total++;
+            }
+        }
+        return total;
+    }
+
+    IEnumerator LoadNewGridLine()
+    {
+        yield return new WaitForSeconds(1f);
+        defaultBlock.GetComponent<SpriteRenderer>().sprite = blockSprites[Random.Range(0, blockSprites.Length)];
+        for (int k=0; k<newLineGrid.Length; k++)
+        {
+            GameObject newBlock = Instantiate(defaultBlock.gameObject, new Vector3(k, -1, 0), Quaternion.identity);
+            Color c = newBlock.gameObject.GetComponent<SpriteRenderer>().color; 
+            c.a = 0.5f;
+            newBlock.gameObject.GetComponent<SpriteRenderer>().color = c;
+            newLineGrid[k] = newBlock.transform;
+            yield return new WaitForSeconds(1f);
+        }
+        MoveRowsUp();
+        AddNewLine();
+        for (int j = 0; j < gridWidth; j++)
+        {
+            Destroy(newLineGrid[j].gameObject);
+            newLineGrid[j] = null;
         }
     }
 
@@ -51,6 +106,8 @@ public class Grid : MonoBehaviour
 
     public void UpdateShadowPiece(Transform activePiece)
     {
+        
+
         if (!shadowPiece.gameObject.activeSelf)
             shadowPiece.gameObject.SetActive(true);
         shadowPiece.position = Vector3.zero;
@@ -63,6 +120,9 @@ public class Grid : MonoBehaviour
         for(int i=0; i<shadowPiece.childCount; i++)
         {
             shadowPiece.GetChild(i).transform.position = blockPositions[i];
+            Color c = shadowPiece.GetChild(i).transform.gameObject.GetComponent<SpriteRenderer>().color; 
+            c.a = 0.25f;
+            shadowPiece.GetChild(i).transform.gameObject.GetComponent<SpriteRenderer>().color = c;
         }
         // Drop shadowPiece to the minimum drop distance
         int dropDistance = FindDropDistance(activePiece);
@@ -150,19 +210,8 @@ public class Grid : MonoBehaviour
 
     public void AddPieceToGrid(Transform piece)
     {
-        // foreach (Transform childBlock in piece)
-        // {
-        //     if (childBlock.CompareTag("PieceBlock")) 
-        //     {
-        //         int roundedX = Mathf.RoundToInt(childBlock.transform.position.x);
-        //         int roundedY = Mathf.RoundToInt(childBlock.transform.position.y);
-
-        //         grid[roundedX, roundedY] = childBlock;
-        //     }
-        // }
         Destroy(piece.gameObject);
         ClearBlocksUnderneath();
-
     }
 
     void ClearBlocksUnderneath()
@@ -181,50 +230,26 @@ public class Grid : MonoBehaviour
         }
     }
 
-    void CheckForClearance()
+    void AddNewLine()
     {
-        for (int i = gridHeight-1; i >= 0; i--)
+        for (int i = 0; i < gridWidth; i++)
         {
-            if (HasLine(i))
-            {
-                DeleteLine(i);
-                RowDown(i);
-            }
+            GameObject newBlock = Instantiate(defaultBlock.gameObject, new Vector3(i, 0, 0), Quaternion.identity);
+            grid[i, 0] = newBlock.transform;
         }
     }
 
-    bool HasLine(int i)
+    void MoveRowsUp()
     {
-        for (int j = 0; j < gridWidth; j++)
-        {
-            if (grid[j,i] == null)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    void DeleteLine(int i)
-    {
-        for (int j = 0; j < gridWidth; j++)
-        {
-            Destroy(grid[j,i].gameObject);
-            grid[j,i] = null;
-        }
-    }
-
-    void RowDown(int i)
-    {
-        for (int y = i; y < gridHeight; y++)
+        for (int y = gridHeight - 1; y >= 0; y--)
         {
             for (int j = 0; j < gridWidth; j++)
             {
                 if (grid[j,y] != null)
                 {
-                    grid[j, y-1] = grid[j, y];
+                    grid[j, y+1] = grid[j, y];
                     grid[j, y] = null;
-                    grid[j, y-1].transform.position -= new Vector3(0, 1, 0);
+                    grid[j, y+1].transform.position += new Vector3(0, 1, 0);
                 }
             }
         }

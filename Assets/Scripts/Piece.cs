@@ -71,7 +71,7 @@ public class Piece : MonoBehaviour
                 }
                 else
                 {
-                    gameOverPanel.SetActive(true);
+                    FindObjectOfType<GameManager>().GameOver();
                     Debug.Log("GAME OVER!");
                 }
             }

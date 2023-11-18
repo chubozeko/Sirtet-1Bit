@@ -3,25 +3,55 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
     private bool isGameActive = true;
+    private bool isPaused = false;
 
-    public GameObject gameOverPanel;
     public GameObject pausePanel;
-    public Piece pieceScript;
+    public GameObject gameOverPanel;
+    public GameObject winPanel;
     public PieceSpawner spawnSpawner;
     public AudioSource gameOverSound;
+    public AudioSource winSound;
+    public Text winConditionText;
+    private int winCondition = 10;
+    public UnityEvent OnGameOver = new UnityEvent();
+
     private void Start()
     {
-        gameOverPanel.SetActive(false);
+        OnGameOver.AddListener(GameOver);
         pausePanel.SetActive(false);
+        gameOverPanel.SetActive(false);
+        winPanel.SetActive(false);
+        UpdateWinConditionText();
     }
 
     private void Update()
     {
         CheckForPauseInput();
+        CheckForWinCondition();
+    }
+
+    private void CheckForWinCondition()
+    {
+        if (winCondition <= 0)
+        {
+            isGameActive = false;
+            isPaused = false;
+            winPanel.SetActive(true);
+            winSound.PlayOneShot(winSound.clip);
+        }
+    }
+
+    private void UpdateWinConditionText()
+    {
+        if (winConditionText != null)
+        {
+            winConditionText.text = winCondition.ToString();
+        }
     }
 
     private void CheckForPauseInput()
@@ -30,7 +60,7 @@ public class GameManager : MonoBehaviour
         {
             if (isGameActive)
             {
-                PauseGame();
+                TogglePause();
             }
             else
             {
@@ -41,45 +71,70 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
+        isGameActive = false;
+        isPaused = false;
         gameOverPanel.SetActive(true);
-        Time.timeScale = 0f;
         gameOverSound.PlayOneShot(gameOverSound.clip);
     }
 
-    public void PauseGame()
+    private void TogglePause()
     {
-        if (isGameActive)
+        isPaused = !isPaused;
+
+        if (isPaused)
         {
-            isGameActive = false;
+            PauseGame();
+        }
+        else
+        {
+            UnpauseGame();
+        }
+    }
+
+    private void PauseGame()
+    {
+        if (isGameActive && !isPaused)
+        {
+            isPaused = true;
             pausePanel.SetActive(true);
             // Stop or pause various game components
-            pieceScript.enabled = false;
             spawnSpawner.enabled = false;
-
-            Time.timeScale = 0;
         }
     }
 
-    public void UnpauseGame()
+    private void UnpauseGame()
     {
-        if (!isGameActive)
+        if (isGameActive && isPaused)
         {
-            isGameActive = true;
+            isPaused = false;
             pausePanel.SetActive(false);
-            pieceScript.enabled = true;
-            Time.timeScale = 1;
+            // Resume or start various game components
+            spawnSpawner.enabled = true;
         }
     }
+
     public void RetryGame()
     {
-        SceneManager.LoadSceneAsync(1);
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
+        isGameActive = true;
+        isPaused = false;
         Time.timeScale = 1f;
     }
 
     public void MainMenu()
     {
         SceneManager.LoadSceneAsync(0);
+        isGameActive = true;
+        isPaused = false;
         Time.timeScale = 1f;
+    }
+
+    public void ExitGame()
+    {
+#if UNITY_EDITOR
+        print("Exit");
+#endif
+        Application.Quit();
     }
 
 
